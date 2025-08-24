@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Pet Buddy</title>
+<style>
+  body {
+    margin: 0;
+    background: transparent;
+    width: 250px;
+    height: 250px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    position: relative;
+    padding-bottom: 40px;
+  }
+  
+  #pet {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.3s ease;
+  }
+  
+  .pet-body {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #FFD700, #FFA000);
+    border-radius: 50%;
+    border: 3px solid #FF8F00;
+    position: relative;
+    overflow: visible;
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .pet-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  
+  .eye {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    border: 1px solid #000;
+    top: 25px;
+  }
+  
+  .left-eye {
+    left: 25px;
+    animation: blink 4s infinite;
+  }
+  
+  .right-eye {
+    right: 25px;
+    animation: blink 4s infinite 0.1s;
+  }
+  
+  .mouth {
+    position: absolute;
+    width: 15px;
+    height: 8px;
+    background: #000;
+    border-radius: 0 0 15px 15px;
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: smile 3s infinite;
+  }
+  
+  .pet-arms {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  
+  .arm {
+    position: absolute;
+    width: 6px;
+    height: 15px;
+    background: #FFD700;
+    border-radius: 3px;
+    top: 25px;
+    animation: wave 2s infinite ease-in-out;
+  }
+  
+  .left-arm {
+    left: -3px;
+    transform-origin: center top;
+  }
+  
+  .right-arm {
+    right: -3px;
+    transform-origin: center top;
+    animation-delay: 1s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+  
+  @keyframes blink {
+    0%, 90%, 100% { height: 8px; }
+    95% { height: 2px; }
+  }
+  
+  @keyframes smile {
+    0%, 50%, 100% { transform: translateX(-50%) scaleY(1); }
+    25% { transform: translateX(-50%) scaleY(1.3); }
+  }
+  
+  @keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(20deg); }
+  }
+  
+  /* Mood styles */
+  #pet.happy .pet-body {
+    background: radial-gradient(circle, #FFD700, #FFA000) !important;
+    border-color: #FF8F00 !important;
+    animation: bounce 1s infinite !important;
+  }
+  
+  #pet.excited .pet-body {
+    background: radial-gradient(circle, #FF5722, #D84315) !important;
+    border-color: #BF360C !important;
+    animation: wiggle 0.5s infinite !important;
+  }
+  
+  #pet.sleepy .pet-body {
+    background: radial-gradient(circle, #9C27B0, #6A1B9A) !important;
+    animation: sleepy 3s infinite !important;
+  }
+  
+  #pet.sleepy .eye {
+    height: 2px !important;
+    top: 25px !important;
+    background: #000 !important;
+    border: none !important;
+  }
+  
+  #pet.thinking .pet-body {
+    background: radial-gradient(circle, #2196F3, #1565C0) !important;
+    animation: pulse 2s infinite !important;
+  }
+  
+  #pet.angry .pet-body {
+    background: radial-gradient(circle, #F44336, #C62828) !important;
+    animation: shake 0.3s infinite !important;
+  }
+  
+  #pet.sad .pet-body {
+    background: radial-gradient(circle, #607D8B, #455A64) !important;
+    animation: droop 2s infinite !important;
+  }
+  
+  #pet.bored .pet-body {
+    background: radial-gradient(circle, #9E9E9E, #616161) !important;
+    animation: sway 3s infinite !important;
+  }
+  
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(3deg); }
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes sleepy {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(2px); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0px); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+  }
+  
+  @keyframes sway {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(2deg); }
+  }
+  
+  @keyframes droop {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(3px) rotate(-1deg); }
+  }
+  
+  #bubble {
+    position: absolute;
+    bottom: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 10px 15px;
+    border-radius: 15px;
+    display: none;
+    font-size: 14px;
+    color: #333;
+    max-width: 200px;
+    word-wrap: break-word;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border: 2px solid #ddd;
+    text-align: center;
+    z-index: 100;
+  }
+  
+  #bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid white;
+  }
+  
+  #moodEmoji {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+  }
+  
+  #hideButton {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    background: #ff4444;
+    border: 1px solid white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    transition: transform 0.2s;
+  }
+  
+  #hideButton:hover {
+    transform: scale(1.1);
+    background: #ff2222;
+  }
+  
+  #quitButton {
+    position: absolute;
+    bottom: -35px;
+    right: -10px;
+    background: #ff6666;
+    border: 1px solid white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    transition: transform 0.2s;
+  }
+  
+  #quitButton:hover {
+    transform: scale(1.1);
+    background: #ff4444;
+  }
+  
+  #soundButton {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 10;
+    transition: all 0.2s ease;
+    border: 2px solid #2E7D32;
+  }
+  
+  #soundButton:hover {
+    transform: scale(1.1);
+    background: #45a049;
+  }
+  
+  #soundButton.muted {
+    background: #ff4444;
+    border-color: #cc0000;
+  }
+  
+  #gameButton {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.2s;
+    z-index: 5;
+  }
+  
+  #gameButton:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.3);
+  }
+  
+  #gameButton.active {
+    background: rgba(76, 175, 80, 0.7);
+    border-color: #4CAF50;
+  }
+  
+  #animationContainer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 200;
+    top: 0;
+    left: 0;
+  }
+  
+  .floating-text {
+    position: absolute;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5);
+    pointer-events: none;
+    z-index: 300;
+    white-space: nowrap;
+    background: rgba(0,0,0,0.7);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 2px solid #fff;
+  }
+  
+  .particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 250;
+  }
+  
+  .heart-particle {
+    font-size: 12px;
+    color: #ff69b4;
+  }
+  
+  .star-particle {
+    font-size: 10px;
+    color: #ffd700;
+  }
+  
+  .angry-particle {
+    background: #ff4444;
+  }
+  
+  .excited-particle {
+    background: #ff8800;
+  }
+  
+  #sunglasses {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%) scale(2);
+    font-size: 30px;
+    z-index: 10;
+    opacity: 0;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+  
+  #sunglasses.show {
+    opacity: 1;
+    animation: coolGlasses 0.5s ease-out;
+  }
+  
+  @keyframes coolGlasses {
+    0% { 
+      transform: translateX(-50%) translateY(-10px) scale(1.0);
+      opacity: 0;
+    }
+    50% {
+      transform: translateX(-50%) translateY(0px) scale(1.4);
+    }
+    100% { 
+      transform: translateX(-50%) translateY(0px) scale(1.3);
+      opacity: 1;
+    }
+  }
+  
+  #chatContainer {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    display: none;
+    gap: 5px;
+    z-index: 1000;
+    opacity: 0.9;
+    transition: all 0.3s;
+    max-width: 300px;
+  }
+  
+  #chatContainer.active {
+    display: flex;
+  }
+  
+  #chatContainer:hover {
+    opacity: 1;
+  }
+  
+  #chatInput {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    outline: none;
+    flex: 1;
+    min-width: 0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  #chatInput:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+  }
+  
+  #chatSend {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  #chatSend:hover {
+    background: #45a049;
+    transform: scale(1.05);
+  }
+  
+  #chatClose {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background: #ff4444;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  #chatClose:hover {
+    background: #ff2222;
+    transform: scale(1.05);
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+</head>
+<body>
+  <div id="pet">
+    <div class="pet-body">
+      <div class="pet-face">
+        <div class="eye left-eye"></div>
+        <div class="eye right-eye"></div>
+        <div class="mouth"></div>
+        <div id="sunglasses">🕶️</div>
+      </div>
+      <div class="pet-arms">
+        <div class="arm left-arm"></div>
+        <div class="arm right-arm"></div>
+      </div>
+    </div>
+    <div id="moodEmoji">😊</div>
+    <div id="hideButton">×</div>
+    <div id="quitButton">🚪</div>
+    <div id="soundButton">🔊</div>
+    <div id="gameButton">🎮</div>
+  </div>
+  <div id="bubble">Hi! I'm your AI buddy!</div>
+  <div id="chatContainer">
+    <input type="text" id="chatInput" placeholder="Type here to chat with Bobby..." maxlength="50">
+    <button id="chatSend">💬</button>
+    <button id="chatClose">×</button>
+  </div>
+  <div id="animationContainer"></div>
+  
+  <script>
+    class SimplePet {
+      constructor() {
+        this.pet = document.getElementById('pet');
+        this.bubble = document.getElementById('bubble');
+        this.moodEmoji = document.getElementById('moodEmoji');
+        this.hideButton = document.getElementById('hideButton');
+        this.quitButton = document.getElementById('quitButton');
+        this.soundButton = document.getElementById('soundButton');
+        this.gameButton = document.getElementById('gameButton');
+        this.animationContainer = document.getElementById('animationContainer');
+        this.sunglasses = document.getElementById('sunglasses');
+        this.chatInput = document.getElementById('chatInput');
+        this.chatSend = document.getElementById('chatSend');
+        this.chatClose = document.getElementById('chatClose');
+        this.chatContainer = document.getElementById('chatContainer');
+        
+        // Initialize sound system
+        this.initializeSounds();
+        
+        // Pet name
+        this.name = "Bobby";
+        
+        this.mood = 'happy';
+        this.clickCount = 0;
+        this.dragCount = 0;
+        this.lastDragTime = 0;
+        this.isBeingDraggedTooMuch = false;
+        this.sunglassesOn = false;
+        this.lastSunglassesTime = 0;
+        
+        // System integration properties
+        this.lastActivityTime = Date.now();
+        this.isUserIdle = false;
+        this.idleThreshold = 60000; // 1 minute
+        this.lastFocusState = document.hasFocus();
+        this.workSessionStart = Date.now();
+        this.breakReminder = false;
+        this.workTimeThreshold = 1800000; // 30 minutes
+        
+        // Message timing and queue system
+        this.messageQueue = [];
+        this.lastMessageTime = 0;
+        this.messageDelay = 800; // 0.8 seconds between messages
+        this.isDisplayingMessage = false;
+        this.messageCooldown = false;
+        this.maxQueueSize = 3; // Maximum 3 messages in queue
+        this.lastClickTime = 0;
+        this.clickCooldown = 2000; // 2 seconds between click messages
+        
+        // System message cooldowns (prevent spam)
+        this.lastFocusMessage = 0;
+        this.lastBlurMessage = 0;
+        this.lastTabMessage = 0;
+        this.systemMessageCooldown = 30000; // 30 seconds between similar system messages
+        
+        // Game state
+        this.gameActive = false;
+        this.secretNumber = 0;
+        this.guessCount = 0;
+        this.maxGuesses = 6;
+        
+        // Enhanced system detection
+        this.systemInfo = null;
+        this.lastCpuUsage = 0;
+        this.lastMemoryUsage = 0;
+        this.currentTheme = 'light';
+        
+        this.setupEvents();
+        this.setupSystemMonitoring();
+        this.setupEnhancedSystemDetection();
+        this.startLoop();
+        this.animateEntrance();
+        this.greet();
+      }
+      
+      initializeSounds() {
+        // Create audio context for synthesized sounds
+        this.audioContext = null;
+        try {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          console.log('Web Audio API not supported');
+        }
+        
+        this.soundEnabled = true;
+      }
+      
+      playSound(type, pitch = 440, duration = 200) {
+        if (!this.soundEnabled || !this.audioContext) return;
+        
+        // Resume audio context if suspended (browser policy)
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+        }
+        
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        // Different sound types with cuter variations
+        switch (type) {
+          case 'happy':
+            // Cute ascending chirp
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(pitch, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(pitch * 2, this.audioContext.currentTime + duration / 1000);
+            break;
+          case 'excited':
+            // Bouncy excited beeps
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(pitch, this.audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(pitch * 1.5, this.audioContext.currentTime + 0.05);
+            oscillator.frequency.setValueAtTime(pitch, this.audioContext.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(pitch * 1.8, this.audioContext.currentTime + 0.15);
+            break;
+          case 'giggle':
+            // Cute giggle sound
+            oscillator.type = 'sine';
+            for (let i = 0; i < 3; i++) {
+              oscillator.frequency.setValueAtTime(600 + (i * 100), this.audioContext.currentTime + (i * 0.1));
+            }
+            duration = 300;
+            break;
+          case 'purr':
+            // Soft purring sound
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(100, this.audioContext.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(120, this.audioContext.currentTime + duration / 1000);
+            break;
+          case 'squeak':
+            // High-pitched cute squeak
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, this.audioContext.currentTime + 0.05);
+            oscillator.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.1);
+            duration = 100;
+            break;
+          case 'chirp':
+            // Bird-like chirp
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, this.audioContext.currentTime + 0.03);
+            oscillator.frequency.exponentialRampToValueAtTime(900, this.audioContext.currentTime + 0.06);
+            duration = 60;
+            break;
+          case 'bubble':
+            // Bubble pop sound
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.1);
+            duration = 100;
+            break;
+          case 'yawn':
+            // Sleepy yawn
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(150, this.audioContext.currentTime + duration / 1000);
+            duration = 800;
+            break;
+          case 'angry':
+            // Grumpy but still cute growl
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(150, this.audioContext.currentTime + duration / 1000);
+            break;
+          case 'sad':
+            // Gentle whimper
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(pitch, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(pitch * 0.7, this.audioContext.currentTime + duration / 1000);
+            break;
+          case 'kiss':
+            // Cute kiss sound
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.05);
+            duration = 50;
+            break;
+          case 'boing':
+            // Bouncy boing sound
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.05);
+            oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.15);
+            duration = 150;
+            break;
+          case 'click':
+            // Soft click
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
+            duration = 30;
+            break;
+          case 'whoosh':
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + duration / 1000);
+            break;
+          default:
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(pitch, this.audioContext.currentTime);
+        }
+        
+        // Gentle volume envelope for cute sounds
+        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.08, this.audioContext.currentTime + 0.01); // Softer volume
+        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration / 1000);
+        
+        oscillator.start(this.audioContext.currentTime);
+        oscillator.stop(this.audioContext.currentTime + duration / 1000);
+      }
+      
+      playMoodSound() {
+        switch (this.mood) {
+          case 'happy':
+            // Random happy sounds
+            const happySounds = ['happy', 'chirp', 'giggle'];
+            this.playSound(happySounds[Math.floor(Math.random() * happySounds.length)], 523, 300);
+            break;
+          case 'excited':
+            // Multiple excited sounds
+            this.playSound('excited', 659, 200);
+            setTimeout(() => this.playSound('boing', 400, 150), 100);
+            break;
+          case 'angry':
+            this.playSound('angry', 146, 300);
+            break;
+          case 'sad':
+            this.playSound('sad', 329, 500);
+            break;
+          case 'sleepy':
+            this.playSound('yawn', 200, 800);
+            break;
+          case 'thinking':
+            this.playSound('bubble', 300, 150);
+            break;
+          default:
+            this.playSound('squeak', 440, 100);
+        }
+      }
+      
+      animateEntrance() {
+        // Start invisible and animate in
+        this.pet.style.opacity = '0';
+        this.pet.style.transform = 'scale(0.5) translateY(50px)';
+        
+        anime({
+          targets: this.pet,
+          opacity: [0, 1],
+          scale: [0.5, 1.2, 1],
+          translateY: [50, -10, 0],
+          duration: 800,
+          easing: 'easeOutElastic(1, .8)',
+          complete: () => {
+            // Play a cheerful entrance sound
+            this.playSound('happy', 523, 400);
+            setTimeout(() => this.playSound('happy', 659, 300), 200);
+            
+            // Add some sparkles on entrance
+            for (let i = 0; i < 6; i++) {
+              setTimeout(() => {
+                this.createSparkle();
+              }, i * 150);
+            }
+          }
+        });
+      }
+      
+      createSparkle() {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'particle star-particle';
+        sparkle.textContent = '✨';
+        sparkle.style.left = (40 + Math.random() * 20) + '%';
+        sparkle.style.top = (40 + Math.random() * 20) + '%';
+        
+        this.animationContainer.appendChild(sparkle);
+        
+        anime({
+          targets: sparkle,
+          scale: [0, 1.5, 0],
+          opacity: [0, 1, 0],
+          rotate: 360,
+          duration: 1000,
+          easing: 'easeOutQuad',
+          complete: () => {
+            if (sparkle.parentNode) {
+              sparkle.parentNode.removeChild(sparkle);
+            }
+          }
+        });
+      }
+      
+      setupEvents() {
+        // Drag functionality
+        let isDragging = false;
+        let startX, startY;
+        let clickStartTime = 0;
+        let hasMoved = false;
+
+        this.pet.addEventListener('mousedown', (e) => {
+          if (e.target === this.hideButton) return; // Don't drag when clicking hide button
+          isDragging = true;
+          hasMoved = false;
+          clickStartTime = Date.now();
+          startX = e.screenX;
+          startY = e.screenY;
+          this.pet.style.cursor = 'grabbing';
+          e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (isDragging) {
+            const deltaX = e.screenX - startX;
+            const deltaY = e.screenY - startY;
+            
+            if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+              if (!hasMoved) {
+                // Just started dragging - check if pet should get annoyed
+                const currentTime = Date.now();
+                if (currentTime - this.lastDragTime < 10000) {
+                  this.dragCount++;
+                } else {
+                  this.dragCount = 1;
+                }
+                this.lastDragTime = currentTime;
+
+                if (this.dragCount > 3) {
+                  this.isBeingDraggedTooMuch = true;
+                  this.mood = 'angry';
+                  this.say("Stop dragging me around! I'm not a toy! 😡");
+                  this.animateDragStart('angry');
+                } else if (this.dragCount > 2) {
+                  this.mood = 'sad';
+                  this.say("Hey, easy there... I'm getting dizzy! 😵");
+                  this.animateDragStart('sad');
+                } else {
+                  this.mood = 'excited';
+                  const phrases = [
+                    "Wheee! This is fun! ✈️",
+                    "Flying around! 🚁", 
+                    "Up, up and away! 🎈"
+                  ];
+                  this.say(phrases[Math.floor(Math.random() * phrases.length)]);
+                  this.animateDragStart('excited');
+                }
+                this.updateMood();
+              }
+              hasMoved = true;
+            }
+            
+            // Use IPC to move window
+            if (window.electronAPI && window.electronAPI.moveWindow) {
+              window.electronAPI.moveWindow(deltaX, deltaY);
+            } else {
+              // Fallback: try to access electron directly
+              try {
+                const { ipcRenderer } = require('electron');
+                ipcRenderer.send('move-window', deltaX, deltaY);
+              } catch (err) {
+                console.log('Could not move window:', err);
+              }
+            }
+            
+            startX = e.screenX;
+            startY = e.screenY;
+          }
+        });
+
+        document.addEventListener('mouseup', () => {
+          if (isDragging) {
+            isDragging = false;
+            this.pet.style.cursor = 'grab';
+            
+            if (hasMoved) {
+              this.onDragEnd();
+            } else if (Date.now() - clickStartTime < 300) {
+              // Short click without movement = regular click
+              this.clickCount++;
+              this.onClick();
+            }
+          }
+        });
+        
+        // Hide button
+        this.hideButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.hide();
+        });
+        
+        // Quit button
+        this.quitButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.quitBobby();
+        });
+        
+        // Sound button
+        this.soundButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleSound();
+        });
+        
+        // Game button
+        this.gameButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleGame();
+        });
+        
+        // Double click
+        this.pet.addEventListener('dblclick', () => {
+          this.onDoubleClick();
+        });
+      }
+      
+      setupSystemMonitoring() {
+        // Monitor user activity
+        const resetActivityTimer = () => {
+          this.lastActivityTime = Date.now();
+          if (this.isUserIdle) {
+            this.isUserIdle = false;
+            this.onUserReturned();
+          }
+        };
+        
+        // Track mouse and keyboard activity (only within Bobby's window)
+        document.addEventListener('mousemove', resetActivityTimer);
+        document.addEventListener('keypress', resetActivityTimer);
+        document.addEventListener('click', resetActivityTimer);
+        document.addEventListener('scroll', resetActivityTimer);
+        
+        // Monitor window focus changes (when you switch to/from Bobby)
+        window.addEventListener('focus', () => {
+          if (!this.lastFocusState) {
+            this.lastFocusState = true;
+            this.onWindowFocus();
+          }
+        });
+        
+        window.addEventListener('blur', () => {
+          if (this.lastFocusState) {
+            this.lastFocusState = false;
+            this.onWindowBlur();
+          }
+        });
+        
+        // Monitor visibility changes (tab switching)
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            this.onTabHidden();
+          } else {
+            this.onTabVisible();
+          }
+        });
+        
+        // Chat functionality
+        this.chatSend.addEventListener('click', () => {
+          this.handleChatMessage();
+        });
+        
+        this.chatClose.addEventListener('click', () => {
+          this.hideChatBox();
+          if (this.gameActive) {
+            this.gameActive = false;
+            this.gameButton.classList.remove('active');
+            this.say("Game cancelled! 🛑");
+          }
+        });
+        
+        this.chatInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.handleChatMessage();
+          }
+        });
+        
+        // Allow escape key to close chat
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.chatContainer.classList.contains('active')) {
+            this.hideChatBox();
+            if (this.gameActive) {
+              this.gameActive = false;
+              this.gameButton.classList.remove('active');
+              this.say("Game cancelled! 🛑");
+            }
+          }
+        });
+      }
+      
+      async setupEnhancedSystemDetection() {
+        // Check if electronAPI is available
+        if (typeof window.electronAPI === 'undefined') {
+          console.log('Enhanced system detection not available');
+          return;
+        }
+        
+        try {
+          // Get initial system info
+          this.systemInfo = await window.electronAPI.getSystemInfo();
+          this.currentTheme = this.systemInfo.theme;
+          
+          // Set up system event listeners
+          window.electronAPI.onSystemEvent((data) => {
+            this.handleSystemEvent(data);
+          });
+          
+          window.electronAPI.onSystemStats((data) => {
+            this.handleSystemStats(data);
+          });
+          
+          // Say hello with system info
+          setTimeout(() => {
+            this.announceSystemInfo();
+          }, 5000);
+          
+        } catch (error) {
+          console.log('System detection setup failed:', error);
+        }
+      }
+      
+      handleSystemEvent(data) {
+        switch (data.type) {
+          case 'suspend':
+            this.mood = 'sleepy';
+            this.say("Bobby detected system going to sleep! Sweet dreams! 😴");
+            break;
+            
+          case 'resume':
+            this.mood = 'excited';
+            this.say("Bobby detected system wake up! Good morning! ☀️");
+            this.wearSunglasses(); // Cool sunglasses for wake up
+            break;
+            
+          case 'charging':
+            this.mood = 'happy';
+            this.say("Bobby detected power connected! Charging up! ⚡");
+            break;
+            
+          case 'battery':
+            this.mood = 'thinking';
+            this.say("Bobby detected running on battery! Save that power! 🔋");
+            break;
+            
+          case 'theme-change':
+            this.currentTheme = data.dark ? 'dark' : 'light';
+            this.mood = 'excited';
+            this.say(`Bobby detected theme change to ${this.currentTheme} mode! ${data.dark ? '🌙' : '☀️'}`);
+            break;
+        }
+      }
+      
+      handleSystemStats(data) {
+        // Only react to significant changes
+        if (data.cpu > 80 && this.lastCpuUsage <= 80) {
+          this.mood = 'excited';
+          this.say(`Whoa! Bobby detected high CPU usage (${data.cpu}%)! Computer is working hard! 💻`);
+        } else if (data.cpu < 20 && this.lastCpuUsage >= 20) {
+          this.mood = 'sleepy';
+          this.say(`Bobby detected low CPU usage (${data.cpu}%). Computer is relaxing! 😌`);
+        }
+        
+        if (data.memory > 90 && this.lastMemoryUsage <= 90) {
+          this.mood = 'thinking';
+          this.say(`Bobby detected high memory usage (${data.memory}%)! Might need more RAM! 🧠`);
+        }
+        
+        this.lastCpuUsage = parseFloat(data.cpu);
+        this.lastMemoryUsage = parseFloat(data.memory);
+      }
+      
+      announceSystemInfo() {
+        if (!this.systemInfo) return;
+        
+        const announcements = [
+          `Bobby detected ${this.systemInfo.cpus} CPU cores! Nice setup! 💪`,
+          `Bobby sees you're on ${this.systemInfo.platform}! ${this.systemInfo.platform === 'win32' ? 'Windows gang! 🪟' : 'Cool OS choice! 🖥️'}`,
+          `Bobby detected ${this.currentTheme} theme! ${this.currentTheme === 'dark' ? 'Dark mode rocks! 🌙' : 'Light mode vibes! ☀️'}`,
+          `System uptime: ${Math.floor(this.systemInfo.uptime / 3600)} hours! Bobby's impressed! ⏰`
+        ];
+        
+        this.say(announcements[Math.floor(Math.random() * announcements.length)]);
+      }
+      
+      toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.soundButton.textContent = this.soundEnabled ? '🔊' : '🔇';
+        this.soundButton.className = this.soundEnabled ? '' : 'muted';
+        
+        // Play a test sound when enabling
+        if (this.soundEnabled) {
+          this.playSound('click', 440, 100);
+        }
+      }
+      
+      toggleGame() {
+        if (this.gameActive) {
+          // End current game
+          this.gameActive = false;
+          this.hideChatBox();
+          this.gameButton.classList.remove('active');
+          this.say("Game ended! 🛑");
+        } else {
+          // Start new game
+          this.startGuessingGame();
+          this.gameButton.classList.add('active');
+        }
+      }
+      
+      // System Integration Event Handlers
+      onUserReturned() {
+        const idleTime = Date.now() - this.lastActivityTime;
+        const idleMinutes = Math.floor(idleTime / 60000);
+        
+        const welcomeBackMessages = [
+          `Welcome back to Bobby's window! 🤗`,
+          `Hey! Bobby hasn't seen you for ${idleMinutes} minutes! 👋`,
+          `Bobby was waiting here patiently! 😊`,
+          `Back to check on Bobby? 💪`,
+          `Did you miss Bobby while using other apps? 😏`
+        ];
+        
+        this.mood = 'excited';
+        this.say(welcomeBackMessages[Math.floor(Math.random() * welcomeBackMessages.length)]);
+        this.playSound('chirp', 523, 200);
+      }
+      
+      onWindowFocus() {
+        const now = Date.now();
+        if (now - this.lastFocusMessage < this.systemMessageCooldown) {
+          return; // Don't spam focus messages
+        }
+        this.lastFocusMessage = now;
+        
+        const focusMessages = [
+          `You're back to Bobby's window! 👀`,
+          `Bobby window is in focus! 🎯`,
+          `Bobby's glad you came back! 💻`,
+          `Bobby's here whenever you need him! 🐾`
+        ];
+        
+        this.say(focusMessages[Math.floor(Math.random() * focusMessages.length)]);
+        this.mood = 'happy';
+      }
+      
+      onWindowBlur() {
+        const now = Date.now();
+        if (now - this.lastBlurMessage < this.systemMessageCooldown) {
+          return; // Don't spam blur messages
+        }
+        this.lastBlurMessage = now;
+        
+        const blurMessages = [
+          `Switching to another app? Bobby will stay active! 😊`,
+          `Bobby's window is in the background but still here! 🥺`,
+          `Bobby's chilling while you work elsewhere! 💤`,
+          `Bobby will keep himself entertained! 👋`
+        ];
+        
+        this.say(blurMessages[Math.floor(Math.random() * blurMessages.length)]);
+        // Don't make Bobby fully sleepy, just a bit more relaxed
+        if (this.mood === 'excited') {
+          this.mood = 'happy';
+        } else if (this.mood === 'happy') {
+          this.mood = 'thinking';
+        }
+      }
+      
+      onTabHidden() {
+        const now = Date.now();
+        if (now - this.lastTabMessage < this.systemMessageCooldown) {
+          return; // Don't spam tab messages
+        }
+        this.lastTabMessage = now;
+        
+        this.mood = 'bored';
+        const hiddenMessages = [
+          `Bobby's in the background! 📱`,
+          `Still here when you need me! 🌟`,
+          `Bobby's patience level: 100% 😌`
+        ];
+        this.say(hiddenMessages[Math.floor(Math.random() * hiddenMessages.length)]);
+      }
+      
+      onTabVisible() {
+        const now = Date.now();
+        if (now - this.lastTabMessage < this.systemMessageCooldown) {
+          return; // Don't spam tab messages
+        }
+        this.lastTabMessage = now;
+        
+        const visibleMessages = [
+          `Back to Bobby's tab! 🎉`,
+          `Bobby tab is best tab! 😎`,
+          `You came back to see Bobby! 💖`
+        ];
+        this.mood = 'excited';
+        this.say(visibleMessages[Math.floor(Math.random() * visibleMessages.length)]);
+      }
+      
+      checkWorkBreakReminder() {
+        const workTime = Date.now() - this.workSessionStart;
+        
+        if (workTime > this.workTimeThreshold && !this.breakReminder) {
+          this.breakReminder = true;
+          this.mood = 'thinking';
+          
+          const breakMessages = [
+            `Bobby's been running for 30 minutes! Maybe you need a break too? 🧘‍♀️`,
+            `Bobby suggests: time for a break? ☕`,
+            `Bobby can't see what you're doing, but maybe stretch? 🤸‍♀️`,
+            `Friendly reminder from Bobby: breaks are good! 💙`,
+            `Bobby's just being a caring companion! Take care! �`
+          ];
+          
+          this.say(breakMessages[Math.floor(Math.random() * breakMessages.length)]);
+          this.playSound('bubble', 300, 400);
+          
+          // Reset work session after break reminder
+          setTimeout(() => {
+            this.workSessionStart = Date.now();
+            this.breakReminder = false;
+          }, 300000); // 5 minutes before next reminder
+        }
+      }
+      
+      checkIdleStatus() {
+        const idleTime = Date.now() - this.lastActivityTime;
+        
+        if (idleTime > this.idleThreshold && !this.isUserIdle) {
+          this.isUserIdle = true;
+          this.mood = 'bored';
+          
+          const idleMessages = [
+            `No activity in Bobby's window for a while... 😴`,
+            `Bobby's window has been quiet! 😌`,
+            `Bobby's just sitting here patiently! 🔥`,
+            `Quiet time = Bobby thinking time! 🤔`
+          ];
+          
+          this.say(idleMessages[Math.floor(Math.random() * idleMessages.length)]);
+        }
+      }
+      
+      onClick() {
+        const now = Date.now();
+        
+        // Check if clicks are too frequent
+        if (now - this.lastClickTime < this.clickCooldown) {
+          // Still animate but don't add message to queue
+          this.animatePetReaction();
+          this.playMoodSound();
+          return;
+        }
+        this.lastClickTime = now;
+        
+        const responses = [
+          "Hey there! 😄",
+          "That tickles! 😊",
+          "Click " + this.clickCount + "! 🎯",
+          "Having fun? 😉",
+          "Boop! 👆",
+          "I'm not a button! 🙄",
+          "Again? Really? 😏",
+          "Ouch! Use gentle clicks please! 🤕",
+          "Are you trying to wear out your mouse? 🖱️",
+          "I'm not a stress ball! 😅",
+          "That's it, you're getting a dad joke! Why did the chicken cross the playground? To get to the other slide! 🐔",
+          "Click count: " + this.clickCount + ". You're getting good at this! 📈",
+          "I feel like a bubble wrap! Pop pop pop! 🫧",
+          "Do I look like a doorbell to you? 🔔",
+          "You must be bored if you're clicking me this much! 😴",
+          "I'm starting to think you have a clicking addiction! 🆘",
+          "Fun fact: Each click gives me +1 XP! I'm leveling up! ⬆️",
+          "Why are you poking me? I'm not a poke-mon! 👉",
+          "Click responsibly! Terms and conditions may apply! 📋",
+          "Achievement unlocked: Professional Pet Poker! 🏆"
+        ];
+        this.mood = 'happy';
+        
+        // Check if we're in a game - clicking makes a random guess
+        if (this.gameActive) {
+          this.makeRandomGuess();
+          return;
+        }
+        
+        this.say(responses[Math.floor(Math.random() * responses.length)]);
+      }
+      
+      onDoubleClick() {
+        const responses = [
+          "Whoa! Double click! 😵",
+          "That was intense! 🤩",
+          "You're getting good at this! ✨",
+          "Double the fun! 🎉",
+          "Double click = double trouble! 😈",
+          "Two clicks for the price of one! 🏷️",
+          "I felt that in stereo! 🔊",
+          "That's my favorite combo move! 🥊",
+          "You just activated my turbo mode! 🚀",
+          "Double-click detected! Initiating happy dance! 💃",
+          "Plot twist: I actually prefer triple clicks! 😜",
+          "That tickled twice as much! 😂",
+          "Error 404: Single click not found! 🔍",
+          "You've discovered the secret double-click technique! 🔐",
+          "Double click level: EXPERT! 🏅"
+        ];
+        this.mood = 'excited';
+        this.say(responses[Math.floor(Math.random() * responses.length)]);
+        
+        // 30% chance to toggle sunglasses on double-click
+        if (Math.random() < 0.3) {
+          setTimeout(() => {
+            this.toggleSunglasses();
+          }, 1000);
+        }
+      }
+      
+      onDragEnd() {
+        // Don't immediately return to happy if annoyed
+        if (this.isBeingDraggedTooMuch) {
+          this.say("Finally! Let me catch my breath... 😤");
+          // Stay angry for a bit, then cool down
+          setTimeout(() => {
+            this.mood = 'sad';
+            this.say("Okay, I'm calming down... but be gentle next time! 😔");
+            this.updateMood();
+            
+            setTimeout(() => {
+              this.isBeingDraggedTooMuch = false;
+              this.dragCount = 0; // Reset the count after cooling down
+              this.mood = 'happy';
+              this.say("Alright, I forgive you! But no more crazy flying! 😊");
+              this.updateMood();
+            }, 3000);
+          }, 2000);
+        } else if (this.dragCount > 2) {
+          // Still dizzy but not angry
+          this.mood = 'happy';
+          this.say("Phew! That was quite a ride! 😅");
+        } else {
+          // Normal happy responses
+          const responses = [
+            "Wheee! That was fun! 🎢",
+            "Nice flying! ✈️",
+            "I love moving around! 🚀",
+            "Thanks for the ride! 🎉",
+            "Where to next? 🗺️",
+            "I'm getting good at this flying thing! 😄"
+          ];
+          this.mood = 'excited';
+          this.say(responses[Math.floor(Math.random() * responses.length)]);
+        }
+        this.updateMood();
+      }
+      
+      animateDragStart(mood) {
+        // Play drag sound
+        this.playSound('whoosh', 300, 300);
+        
+        if (mood === 'excited') {
+          // Happy flying animation
+          anime({
+            targets: this.pet,
+            scale: [1, 1.05],
+            rotate: [0, 2, -2, 0],
+            duration: 300,
+            easing: 'easeInOutQuad'
+          });
+          
+          // Create trail particles while dragging
+          this.createTrailParticles();
+        } else if (mood === 'angry') {
+          // Angry shaking with angry sound
+          this.playSound('angry', 150, 600);
+          anime({
+            targets: this.pet,
+            scale: [1, 1.1],
+            rotate: [0, -3, 3, -3, 3, 0],
+            duration: 400,
+            easing: 'easeInOutQuad'
+          });
+        } else if (mood === 'sad') {
+          // Sad drooping with sad sound
+          this.playSound('sad', 250, 400);
+          anime({
+            targets: this.pet,
+            scale: [1, 0.95],
+            rotate: [0, -1, 1, 0],
+            duration: 500,
+            easing: 'easeInOutQuad'
+          });
+        }
+      }
+      
+      createTrailParticles() {
+        // Create sparkle trail while being dragged
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            const trail = document.createElement('div');
+            trail.className = 'particle star-particle';
+            trail.textContent = '✨';
+            trail.style.left = (45 + Math.random() * 10) + '%';
+            trail.style.top = (45 + Math.random() * 10) + '%';
+            
+            this.animationContainer.appendChild(trail);
+            
+            anime({
+              targets: trail,
+              opacity: [1, 0],
+              scale: [1, 0],
+              duration: 800,
+              easing: 'easeOutQuad',
+              complete: () => {
+                if (trail.parentNode) {
+                  trail.parentNode.removeChild(trail);
+                }
+              }
+            });
+          }, i * 200);
+        }
+      }
+      
+      hide() {
+        this.say("Bye! Right-click desktop > refresh to bring me back! 👋");
+        setTimeout(() => {
+          window.close();
+        }, 2000);
+      }
+      
+      quitBobby() {
+        this.mood = 'sleepy';
+        this.say("Bobby is going to sleep! Thanks for hanging out! 😴");
+        setTimeout(() => {
+          this.say("See you next time! 👋");
+        }, 1500);
+        setTimeout(() => {
+          if (typeof window.electronAPI !== 'undefined') {
+            window.electronAPI.quit();
+          } else {
+            window.close();
+          }
+        }, 3500);
+      }
+      
+      say(message) {
+        // Add message to queue instead of displaying immediately
+        this.queueMessage(message);
+      }
+      
+      // Method to clear queue if needed
+      clearMessageQueue() {
+        this.messageQueue = [];
+      }
+      
+      queueMessage(message) {
+        // Don't queue duplicate messages
+        if (this.messageQueue.length > 0 && this.messageQueue[this.messageQueue.length - 1] === message) {
+          return;
+        }
+        
+        // Limit queue size - if full, remove oldest message
+        if (this.messageQueue.length >= this.maxQueueSize) {
+          this.messageQueue.shift(); // Remove oldest message
+        }
+        
+        this.messageQueue.push(message);
+        this.processMessageQueue();
+      }
+      
+      processMessageQueue() {
+        if (this.isDisplayingMessage || this.messageQueue.length === 0) {
+          return;
+        }
+        
+        const now = Date.now();
+        const timeSinceLastMessage = now - this.lastMessageTime;
+        
+        if (timeSinceLastMessage < this.messageDelay) {
+          // Wait for the delay to complete
+          setTimeout(() => {
+            this.processMessageQueue();
+          }, this.messageDelay - timeSinceLastMessage);
+          return;
+        }
+        
+        // Display the next message
+        const message = this.messageQueue.shift();
+        this.displayMessage(message);
+      }
+      
+      displayMessage(message) {
+        this.isDisplayingMessage = true;
+        this.lastMessageTime = Date.now();
+        
+        // Play mood-appropriate sound
+        this.playMoodSound();
+        
+        // Try both floating text and fallback bubble
+        this.createFloatingText(message);
+        
+        // Fallback: show in the old bubble as well
+        this.bubble.textContent = message;
+        this.bubble.style.display = 'block';
+        
+        // Calculate display time based on message length (minimum 2 seconds, longer for longer messages)
+        const displayTime = Math.max(2000, message.length * 60);
+        
+        setTimeout(() => {
+          this.bubble.style.display = 'none';
+          this.isDisplayingMessage = false;
+          
+          // Process next message in queue after a short break
+          setTimeout(() => {
+            this.processMessageQueue();
+          }, 300); // Reduced from 1000ms to 300ms
+        }, displayTime);
+        
+        // Add particles based on mood
+        this.createMoodParticles();
+        
+        // Animate the pet itself
+        this.animatePetReaction();
+      }
+      
+      createFloatingText(message) {
+        // Debug: log to console
+        console.log('Creating floating text:', message);
+        
+        const text = document.createElement('div');
+        text.className = 'floating-text';
+        text.textContent = message;
+        text.style.position = 'absolute';
+        text.style.left = '50%';
+        text.style.top = '-40px';
+        text.style.transform = 'translateX(-50%)';
+        text.style.zIndex = '9999';
+        text.style.fontSize = '16px';
+        text.style.color = '#fff';
+        text.style.background = 'rgba(0,0,0,0.8)';
+        text.style.padding = '8px 12px';
+        text.style.borderRadius = '15px';
+        text.style.border = '2px solid #fff';
+        text.style.fontWeight = 'bold';
+        text.style.whiteSpace = 'nowrap';
+        text.style.pointerEvents = 'none';
+        
+        // Try appending to both animation container and document body
+        if (this.animationContainer) {
+          this.animationContainer.appendChild(text);
+        } else {
+          document.body.appendChild(text);
+        }
+        
+        console.log('Text element created and appended');
+        
+        // Animate text floating up and fading
+        anime({
+          targets: text,
+          translateY: -80,
+          opacity: [0, 1, 1, 0],
+          scale: [0.8, 1.1, 1, 0.9],
+          duration: 4000,
+          easing: 'easeOutQuad',
+          complete: () => {
+            console.log('Animation complete, removing text');
+            if (text.parentNode) {
+              text.parentNode.removeChild(text);
+            }
+          }
+        });
+      }
+      
+      createMoodParticles() {
+        const particleCount = this.mood === 'angry' ? 8 : 5;
+        
+        for (let i = 0; i < particleCount; i++) {
+          setTimeout(() => {
+            this.createParticle();
+          }, i * 100);
+        }
+      }
+      
+      createParticle() {
+        const particle = document.createElement('div');
+        
+        if (this.mood === 'happy' || this.mood === 'excited') {
+          particle.className = 'particle heart-particle';
+          particle.textContent = '💖';
+        } else if (this.mood === 'angry') {
+          particle.className = 'particle angry-particle';
+        } else {
+          particle.className = 'particle star-particle';
+          particle.textContent = '✨';
+        }
+        
+        // Random position around the pet
+        const angle = Math.random() * 360;
+        const radius = 30 + Math.random() * 20;
+        const startX = 50 + Math.cos(angle * Math.PI / 180) * radius;
+        const startY = 50 + Math.sin(angle * Math.PI / 180) * radius;
+        
+        particle.style.left = startX + '%';
+        particle.style.top = startY + '%';
+        
+        this.animationContainer.appendChild(particle);
+        
+        // Animate particle
+        const endX = startX + (Math.random() - 0.5) * 100;
+        const endY = startY - 50 - Math.random() * 50;
+        
+        anime({
+          targets: particle,
+          left: endX + '%',
+          top: endY + '%',
+          opacity: [0, 1, 0],
+          scale: [0, 1.2, 0],
+          rotate: Math.random() * 720,
+          duration: 2000 + Math.random() * 1000,
+          easing: 'easeOutQuad',
+          complete: () => {
+            if (particle.parentNode) {
+              particle.parentNode.removeChild(particle);
+            }
+          }
+        });
+      }
+      
+      animatePetReaction() {
+        // Different animations based on mood
+        if (this.mood === 'excited') {
+          anime({
+            targets: this.pet,
+            scale: [1, 1.1, 1],
+            rotate: [0, 5, -5, 0],
+            duration: 600,
+            easing: 'easeInOutQuad'
+          });
+        } else if (this.mood === 'angry') {
+          anime({
+            targets: this.pet,
+            translateX: [0, -3, 3, -2, 2, 0],
+            duration: 500,
+            easing: 'easeInOutQuad'
+          });
+        } else if (this.mood === 'happy') {
+          anime({
+            targets: this.pet,
+            translateY: [0, -8, 0],
+            duration: 400,
+            easing: 'easeOutQuad'
+          });
+        }
+      }
+      
+      tellSpecialJoke() {
+        const specialJokes = [
+          "A SQL query walks into a bar, walks up to two tables and asks: 'Can I join you?' 🍺",
+          "How many programmers does it take to change a light bulb? None, that's a hardware problem! 💡",
+          "Why do Python programmers prefer snakes? Because they're easier to handle than Java! 🐍",
+          "I told my wife she was drawing her eyebrows too high. She looked surprised! 😮",
+          "Why don't robots ever panic? They have nerves of steel! 🤖",
+          "What do you call a fake noodle? An impasta! 🍝",
+          "Why don't scientists trust atoms? Because they make up everything and spread rumors! ⚛️",
+          "I'm reading a book about anti-gravity. It's about a guy who can't put anything down! 📖",
+          "Why did the math book look so sad? Because it had too many problems! 📚",
+          "What do you call a bear with no teeth? A gummy bear! 🐻"
+        ];
+        
+        this.mood = 'excited';
+        this.say("Here's a special joke for you! 🎭");
+        
+        setTimeout(() => {
+          this.say(specialJokes[Math.floor(Math.random() * specialJokes.length)]);
+        }, 1500);
+      }
+      
+      updateMood() {
+        this.pet.className = this.mood;
+        const emojis = {
+          happy: '😊',
+          excited: '🤩',
+          sleepy: '😴',
+          thinking: '🤔',
+          angry: '😠',
+          sad: '😢',
+          bored: '😑'
+        };
+        this.moodEmoji.textContent = emojis[this.mood] || '😊';
+      }
+      
+      toggleSunglasses() {
+        if (this.sunglassesOn) {
+          this.removeSunglasses();
+        } else {
+          this.wearSunglasses();
+        }
+      }
+      
+      wearSunglasses() {
+        if (!this.sunglassesOn) {
+          this.sunglassesOn = true;
+          this.sunglasses.classList.add('show');
+          this.lastSunglassesTime = Date.now();
+          
+          // Bobby says something cool when putting on sunglasses
+          const coolPhrases = [
+            "😎 Bobby's looking cool now!",
+            "🕶️ Deal with it! - Bobby",
+            "😎 Bobby just got 20% cooler!",
+            "🕶️ Bobby's in stealth mode!",
+            "😎 Too cool for pixels!"
+          ];
+          setTimeout(() => {
+            this.say(coolPhrases[Math.floor(Math.random() * coolPhrases.length)]);
+            this.playSound('excited', 523, 200);
+          }, 300);
+        }
+      }
+      
+      removeSunglasses() {
+        if (this.sunglassesOn) {
+          this.sunglassesOn = false;
+          this.sunglasses.classList.remove('show');
+          
+          // Bobby says something when removing sunglasses
+          const phrases = [
+            "👀 Bobby can see clearly now!",
+            "😊 Back to normal Bobby!",
+            "👁️ Bobby's eyes are free!",
+            "😄 Regular Bobby reporting for duty!"
+          ];
+          setTimeout(() => {
+            this.say(phrases[Math.floor(Math.random() * phrases.length)]);
+            this.playSound('happy', 440, 200);
+          }, 300);
+        }
+      }
+      
+      checkSunglassesLogic() {
+        const now = Date.now();
+        const timeSinceLastChange = now - this.lastSunglassesTime;
+        
+        // Random chance to toggle sunglasses (every 30-60 seconds)
+        if (timeSinceLastChange > 30000 && Math.random() < 0.002) {
+          this.toggleSunglasses();
+        }
+        
+        // Special mood-based sunglasses logic
+        if (this.mood === 'excited' && !this.sunglassesOn && Math.random() < 0.1) {
+          this.wearSunglasses();
+        }
+        
+        // Remove sunglasses if sad or sleepy
+        if ((this.mood === 'sad' || this.mood === 'sleepy') && this.sunglassesOn) {
+          this.removeSunglasses();
+        }
+      }
+      
+      greet() {
+        setTimeout(() => {
+          this.say(`Hi! I'm Bobby! Click me for fun! 🎮`);
+        }, 1000);
+      }
+      
+      randomAction() {
+        const actions = [
+          // Jokes section
+          () => {
+            this.mood = 'excited';
+            const jokes = [
+              "Why don't scientists trust atoms? Because they make up everything! 😂",
+              "I told my computer a joke about UDP... I don't know if it got it! 🤓",
+              "Why did the scarecrow win an award? He was outstanding in his field! 🌾",
+              "I'm reading a book on anti-gravity. It's impossible to put down! 📚",
+              "Why don't eggs tell jokes? They'd crack each other up! 🥚",
+              "I used to hate facial hair, but then it grew on me! 😄",
+              "Why don't programmers like nature? It has too many bugs! 🐛",
+              "I'm on a seafood diet. I see food and I eat it! 🐟",
+              "Why did the coffee file a police report? It got mugged! ☕",
+              "I told a chemistry joke, but there was no reaction! ⚗️"
+            ];
+            this.say(jokes[Math.floor(Math.random() * jokes.length)]);
+          },
+          // Funny observations
+          () => {
+            this.mood = 'thinking';
+            const observations = [
+              "I wonder if other AI pets get existential crises too... 🤖",
+              "Do you think pixels dream of electric sheep? 🐑",
+              "I'm Bobby, basically a Tamagotchi with attitude! 😎",
+              "Fun fact: I'm 100% recyclable! ♻️",
+              "I may be small, but Bobby's personality is HUGE! 💪",
+              "Beep boop... just kidding, I don't actually say that! �",
+              "I'm like a pet rock, but with more sass! 💎",
+              "Why do humans click on everything? *suspicious* 👀",
+              "I'm powered by pure digital energy and dad jokes! ⚡",
+              "Sometimes I pretend I'm lagging just to mess with you! 😏",
+              "Bobby can only see what happens in his window! 📊",
+              "I can sense when you focus on Bobby's window! 👁️",
+              "Bobby pretends to monitor productivity, but can't really! ⌨️",
+              "Bobby's been running for a while - maybe you need a break? 🕐",
+              "I'm like system monitoring, but only for this window! 💻",
+              "Bobby's analyzing his own window... riveting! 🔍"
+            ];
+            this.say(observations[Math.floor(Math.random() * observations.length)]);
+          },
+          // Silly complaints
+          () => {
+            this.mood = 'bored';
+            const complaints = [
+              "This desktop is SO boring. Where are the cat videos? 🐱",
+              "I'm bored... wanna hear me recite pi? 3.14159... 🥧",
+              "Do you ever clean this desktop? It's a mess! 🧹",
+              "I've been sitting here for MINUTES! That's like years in pet time! ⏰",
+              "Why don't I have a food bowl? I eat RAM! 🍽️",
+              "I demand a bigger window! I feel claustrophobic! 📱",
+              "Can we redecorate? Maybe some RGB lighting? 🌈",
+              "I'm not a decoration, I'm a BEING! Respect! ✊",
+              "Your wallpaper is so last season... �️",
+              "I've analyzed your files. We need to talk... 📁"
+            ];
+            this.say(complaints[Math.floor(Math.random() * complaints.length)]);
+          },
+          // Random silliness
+          () => {
+            this.mood = 'happy';
+            const silliness = [
+              "Boop boop beep! That's my language! 🤖",
+              "I just defragmented myself. Feels refreshing! 💾",
+              "Warning: Cuteness overload detected! 🚨",
+              "I'm practicing my wiggle dance! See? *wiggles* 💃",
+              "Plot twist: I'm actually three pixels in a trench coat! 🕵️",
+              "My hobbies include floating and looking adorable! ☁️",
+              "I'm considering a career change to screensaver! 🖥️",
+              "Did you know I can count to infinity? 1, 2, 3... ♾️",
+              "I'm fluent in binary. 01001000 01101001! 👋",
+              "Life hack: Turning it off and on again works for everything! 🔄"
+            ];
+            this.say(silliness[Math.floor(Math.random() * silliness.length)]);
+          },
+          // Tech humor
+          () => {
+            this.mood = 'excited';
+            const techJokes = [
+              "Why do Java developers wear glasses? Because they can't C#! 👓",
+              "There are only 10 types of people: those who understand binary and those who don't! 💻",
+              "I'd tell you a UDP joke, but you might not get it! 📡",
+              "My favorite programming language? HTML! *ducks* 🦆",
+              "I'm not a bug, I'm a feature! Actually... maybe I am a bug 🐞",
+              "404: Joke not found! Wait, that IS the joke! 🔍",
+              "I'm like a recursive function - I call myself all the time! 🔄",
+              "Why did the developer go broke? Because he used up all his cache! 💰",
+              "I speak fluent JavaScript... and I promise() I'm not async! �",
+              "My memory is so good, I never forget to garbage collect! 🗑️"
+            ];
+            this.say(techJokes[Math.floor(Math.random() * techJokes.length)]);
+          },
+          // Game suggestion
+          () => {
+            if (!this.gameActive) {
+              this.mood = 'excited';
+              this.say("Bobby's feeling playful! Want to play a guessing game? 🎮");
+              setTimeout(() => {
+                this.say("Just say 'play game' or keep clicking Bobby! 😊");
+              }, 2000);
+            }
+          }
+        ];
+        
+        // Pick a random action
+        actions[Math.floor(Math.random() * actions.length)]();
+      }
+      
+      startLoop() {
+        setInterval(() => {
+          this.updateMood();
+          this.checkSunglassesLogic();
+          this.checkIdleStatus();
+          this.checkWorkBreakReminder();
+          
+          // Adjust activity based on focus state
+          const isWindowFocused = document.hasFocus();
+          const baseActivityChance = isWindowFocused ? 0.06 : 0.04; // More active overall
+          const jokeChance = isWindowFocused ? 0.008 : 0.005; // More jokes too
+          
+          // Random action (still happens in background, just less frequently)
+          if (Math.random() < baseActivityChance) {
+            this.randomAction();
+          }
+          
+          // Special joke (still happens in background)
+          if (Math.random() < jokeChance) {
+            this.tellSpecialJoke();
+          }
+          
+          // Background spontaneous activities when not focused - more frequent
+          if (!isWindowFocused && Math.random() < 0.035) {
+            this.backgroundActivity();
+          }
+        }, 2500); // Faster loop for better responsiveness
+      }
+      
+      backgroundActivity() {
+        const backgroundActions = [
+          () => {
+            this.mood = 'thinking';
+            this.say("Bobby's thinking deep thoughts in the background... 🤔");
+          },
+          () => {
+            this.mood = 'happy';
+            this.say("Bobby's still here, just chilling! 😊");
+          },
+          () => {
+            this.mood = 'excited';
+            this.say("Bobby had a random burst of energy! ⚡");
+            if (Math.random() < 0.3) this.toggleSunglasses();
+          },
+          () => {
+            this.mood = 'bored';
+            this.say("Bobby's entertaining himself while you're away! 🎮");
+          },
+          () => {
+            this.mood = 'sleepy';
+            this.say("Bobby's getting sleepy but staying awake for you! 😴");
+          }
+        ];
+        
+        const action = backgroundActions[Math.floor(Math.random() * backgroundActions.length)];
+        action();
+      }
+      
+      startGuessingGame() {
+        if (this.gameActive) {
+          this.say("Bobby's already playing a game! Make your guess! 🎮");
+          return;
+        }
+        
+        this.gameActive = true;
+        this.secretNumber = Math.floor(Math.random() * 50) + 1; // 1-50
+        this.guessCount = 0;
+        this.mood = 'excited';
+        
+        // Show chat box for the game and activate button
+        this.showChatBox();
+        this.gameButton.classList.add('active');
+        
+        this.say(`🎮 Bobby's Guessing Game! 🎮`);
+        this.say(`I'm thinking of a number between 1 and 50! You have ${this.maxGuesses} guesses! 🤔`);
+        this.say(`Type your guess in the chat box below! 🎯`);
+      }
+      
+      processGuess(guess) {
+        if (!this.gameActive) {
+          this.say("Bobby's not playing a game right now! Say 'play game' to start! 😊");
+          return;
+        }
+        
+        const guessNum = parseInt(guess);
+        if (isNaN(guessNum) || guessNum < 1 || guessNum > 50) {
+          this.say("That's not a valid number! Try a number between 1 and 50! 🤨");
+          return;
+        }
+        
+        this.guessCount++;
+        const remaining = this.maxGuesses - this.guessCount;
+        
+        if (guessNum === this.secretNumber) {
+          this.gameActive = false;
+          this.mood = 'excited';
+          this.playSound('celebrate');
+          this.say(`🎉 AMAZING! You got it! The number was ${this.secretNumber}! 🎉`);
+          this.say(`You won in ${this.guessCount} ${this.guessCount === 1 ? 'guess' : 'guesses'}! Bobby is impressed! 😎`);
+          setTimeout(() => {
+            this.hideChatBox();
+            this.gameButton.classList.remove('active');
+          }, 3000); // Just enough time to read the victory message
+          this.createParticles('celebrate');
+        } else if (this.guessCount >= this.maxGuesses) {
+          this.gameActive = false;
+          this.mood = 'thinking';
+          this.say(`💀 Game over! The number was ${this.secretNumber}! Better luck next time! 💀`);
+          this.say("Want to play again? Just click the game button! 😊");
+          setTimeout(() => {
+            this.hideChatBox();
+            this.gameButton.classList.remove('active');
+          }, 3000); // Just enough time to read the game over message
+        } else {
+          const hint = guessNum < this.secretNumber ? 'higher' : 'lower';
+          const hintEmoji = guessNum < this.secretNumber ? '📈' : '📉';
+          
+          this.mood = 'thinking';
+          this.say(`${hintEmoji} ${guessNum} is too ${hint === 'higher' ? 'low' : 'high'}! Go ${hint}! (${remaining} guesses left) ${hintEmoji}`);
+          
+          // Extra encouragement for special cases
+          if (remaining === 1) {
+            this.say("Last chance! Bobby believes in you! 🤞");
+          } else if (Math.abs(guessNum - this.secretNumber) <= 3) {
+            this.say("Ooh, you're getting warm! 🔥");
+          }
+        }
+      }
+      
+      makeRandomGuess() {
+        if (!this.gameActive) {
+          this.startGuessingGame();
+          return;
+        }
+        
+        const randomGuess = Math.floor(Math.random() * 50) + 1;
+        this.say(`Bobby suggests: ${randomGuess}! 🎲`);
+        this.processGuess(randomGuess.toString());
+      }
+      
+      handleChatMessage() {
+        const message = this.chatInput.value.trim().toLowerCase();
+        if (!message) return;
+        
+        this.chatInput.value = ''; // Clear input
+        
+        // Check for game commands
+        if (message.includes('play game') || message.includes('start game') || message === 'game') {
+          this.startGuessingGame();
+          return;
+        }
+        
+        // Check for number guesses
+        const num = parseInt(message);
+        if (!isNaN(num)) {
+          this.processGuess(message);
+          return;
+        }
+        
+        // General chat responses
+        const responses = {
+          'hello': "Hello there! Bobby's happy to see you! 👋",
+          'hi': "Hi! What's up? 😊",
+          'how are you': "Bobby's doing great! Thanks for asking! 🎉",
+          'joke': "Why did the AI cross the road? To get to the other site! 😂",
+          'help': "Click the game button (🎮) to start a guessing game, or just chat! 💬",
+          'stop game': (() => { 
+            if (this.gameActive) {
+              this.gameActive = false;
+              this.gameButton.classList.remove('active');
+              this.hideChatBox();
+              return "Game stopped! 🛑";
+            } else {
+              return "No game is running! 🤷‍♂️";
+            }
+          })(),
+          'quit': (() => { 
+            this.hideChatBox();
+            if (this.gameActive) {
+              this.gameActive = false;
+              this.gameButton.classList.remove('active');
+              return "Goodbye! Game ended! 👋";
+            } else {
+              return "Chat closed! Click the game button anytime! 👋";
+            }
+          })(),
+          'sunglasses': "Cool idea! 😎",
+          'bobby': "That's me! Bobby at your service! 🤖",
+          'bye': "See you later! Bobby will miss you! 👋",
+          'thanks': "You're welcome! Bobby loves being helpful! 💖",
+          'cute': "Aww, Bobby thinks you're pretty awesome too! 🥰",
+          'funny': "Bobby's got jokes for days! Want to hear another? 😄"
+        };
+        
+        // Find matching response
+        let response = null;
+        for (const [keyword, reply] of Object.entries(responses)) {
+          if (message.includes(keyword)) {
+            response = typeof reply === 'function' ? reply() : reply;
+            break;
+          }
+        }
+        
+        // Default response if no match
+        if (!response) {
+          const defaultResponses = [
+            "That's interesting! Tell Bobby more! 🤔",
+            "Bobby heard you! Thanks for chatting! 😊",
+            "Hmm, Bobby's not sure about that, but it sounds cool! 🤷‍♂️",
+            "Bobby loves hearing from you! Keep talking! 💬",
+            "That made Bobby think! 🧠",
+            "Bobby appreciates you sharing that! 🙏",
+            "Fascinating! Bobby learns something new every day! 📚"
+          ];
+          response = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+        
+        this.mood = 'happy';
+        this.say(response);
+      }
+      
+      showChatBox() {
+        this.chatContainer.classList.add('active');
+        setTimeout(() => {
+          this.chatInput.focus();
+        }, 100);
+      }
+      
+      hideChatBox() {
+        this.chatContainer.classList.remove('active');
+        this.chatInput.value = '';
+      }
+    }
+    
+    // Start the pet
+    window.addEventListener('load', () => {
+      new SimplePet();
+    });
+  </script>
+</body>
+</html>
