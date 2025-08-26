@@ -67,7 +67,9 @@ npm run build
 
 ## 📱 Screenshots
 
-*Coming soon - demo GIFs and screenshots will be added here*
+![Bobby AI Pet Screenshot](assets/bobby.png)
+
+*Bobby in action - your delightful desktop companion!*
 
 ## 🏗️ Development
 
