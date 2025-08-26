@@ -49,15 +49,24 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       
+    - name: Debug - List downloaded files
+      run: |
+        echo "=== Downloaded artifacts structure ==="
+        find . -type f -name "*.zip" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" | head -20
+        echo "=== Complete directory structure ==="
+        ls -la
+        ls -la */
+      
     - name: Create or Update Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: latest
         name: Bobby AI Pet - Latest Build
         files: |
-          bobby-ai-pet-windows-latest/**/*
-          bobby-ai-pet-macos-latest/**/*
-          bobby-ai-pet-ubuntu-latest/**/*
+          bobby-ai-pet-windows-latest/**/*.zip
+          bobby-ai-pet-macos-latest/**/*.dmg
+          bobby-ai-pet-ubuntu-latest/**/*.AppImage
+          bobby-ai-pet-ubuntu-latest/**/*.deb
         draft: false
         prerelease: false
         generate_release_notes: true
