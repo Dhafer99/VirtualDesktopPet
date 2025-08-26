@@ -33,8 +33,8 @@ Bobby is an interactive AI desktop pet that lives on your computer desktop! Unli
 ### Build from Source
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/bobby-ai-pet.git
-cd bobby-ai-pet
+git clone https://github.com/Dhafer99/VirtualDesktopPet.git
+cd VirtualDesktopPet
 
 # Install dependencies
 npm install
@@ -135,4 +135,7 @@ MIT License - Feel free to use Bobby as inspiration for your own desktop pet pro
 ### 🌟 Show your support
 If you enjoyed Bobby, please give this repository a star! It helps others discover this fun project.
 
-![GitHub Stars](https://img.shields.io/github/stars/yourusername/bobby-ai-pet?style=social)
+![GitHub Stars](https://img.shields.io/github/stars/Dhafer99/VirtualDesktopPet?style=social)
+
+
+
