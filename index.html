@@ -7,15 +7,15 @@
   body {
     margin: 0;
     background: transparent;
-    width: 250px;
-    height: 250px;
-    overflow: hidden;
+    width: 280px; /* Increased width to accommodate buttons */
+    height: 280px; /* Increased height to accommodate buttons */
+    overflow: hidden; /* Keep overflow hidden to prevent scroll bars */
     display: flex;
-    align-items: flex-end;
+    align-items: center; /* Center the pet in the larger container */
     justify-content: center;
     font-family: 'Comic Sans MS', cursive, sans-serif;
     position: relative;
-    padding-bottom: 40px;
+    padding: 20px; /* Add padding for button space */
   }
   
   #pet {
@@ -210,7 +210,7 @@
   
   #bubble {
     position: absolute;
-    bottom: 140px;
+    top: 10px; /* Move much higher to not hide Bobby */
     left: 50%;
     transform: translateX(-50%);
     background: white;
@@ -230,25 +230,25 @@
   #bubble::after {
     content: '';
     position: absolute;
-    bottom: -8px;
+    top: 100%; /* Point downward toward Bobby */
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-top: 8px solid white;
+    border-bottom: 8px solid white; /* Arrow pointing down */
   }
   
   #moodEmoji {
     position: absolute;
     top: -8px;
     right: -8px;
-    font-size: 16px;
+    font-size: 20px; /* Bigger emoji */
     background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 32px; /* Bigger container */
+    height: 32px; /* Bigger container */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -257,21 +257,22 @@
   
   #hideButton {
     position: absolute;
-    top: -8px;
-    left: -8px;
+    top: 80px; /* Further away from Bobby's center */
+    right: 80px;
     background: #ff4444;
     border: 1px solid white;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
     color: white;
     transition: transform 0.2s;
+    z-index: 10;
   }
   
   #hideButton:hover {
@@ -279,36 +280,13 @@
     background: #ff2222;
   }
   
-  #quitButton {
-    position: absolute;
-    bottom: -35px;
-    right: -10px;
-    background: #ff6666;
-    border: 1px solid white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-    color: white;
-    transition: transform 0.2s;
-  }
-  
-  #quitButton:hover {
-    transform: scale(1.1);
-    background: #ff4444;
-  }
   
   #soundButton {
     position: absolute;
-    top: -10px;
-    left: -10px;
-    width: 25px;
-    height: 25px;
+    top: 80px; /* Further away from Bobby's center */
+    left: 80px;
+    width: 28px;
+    height: 28px;
     background: #4CAF50;
     color: white;
     border-radius: 50%;
@@ -316,7 +294,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     z-index: 10;
     transition: all 0.2s ease;
     border: 2px solid #2E7D32;
@@ -334,19 +312,18 @@
   
   #gameButton {
     position: absolute;
-    bottom: -35px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 80px; /* Move to top-right area instead of bottom */
+    right: 40px; /* Position it better for access */
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     transition: transform 0.2s;
     z-index: 5;
   }
@@ -542,8 +519,7 @@
       </div>
     </div>
     <div id="moodEmoji">😊</div>
-    <div id="hideButton">×</div>
-    <div id="quitButton">🚪</div>
+    <div id="hideButton">🚪</div>
     <div id="soundButton">🔊</div>
     <div id="gameButton">🎮</div>
   </div>
@@ -562,7 +538,6 @@
         this.bubble = document.getElementById('bubble');
         this.moodEmoji = document.getElementById('moodEmoji');
         this.hideButton = document.getElementById('hideButton');
-        this.quitButton = document.getElementById('quitButton');
         this.soundButton = document.getElementById('soundButton');
         this.gameButton = document.getElementById('gameButton');
         this.animationContainer = document.getElementById('animationContainer');
@@ -598,12 +573,12 @@
         // Message timing and queue system
         this.messageQueue = [];
         this.lastMessageTime = 0;
-        this.messageDelay = 800; // 0.8 seconds between messages
+        this.messageDelay = 300; // 0.3 seconds between messages (more natural)
         this.isDisplayingMessage = false;
         this.messageCooldown = false;
         this.maxQueueSize = 3; // Maximum 3 messages in queue
         this.lastClickTime = 0;
-        this.clickCooldown = 2000; // 2 seconds between click messages
+        this.clickCooldown = 1000; // 1 second between click messages (more responsive)
         
         // System message cooldowns (prevent spam)
         this.lastFocusMessage = 0;
@@ -946,10 +921,10 @@
           this.hide();
         });
         
-        // Quit button
-        this.quitButton.addEventListener('click', (e) => {
+        // Hide/Quit button (combined functionality)
+        this.hideButton.addEventListener('click', (e) => {
           e.stopPropagation();
-          this.quitBobby();
+          this.quitBobby(); // Hide button now quits the app
         });
         
         // Sound button
@@ -1558,8 +1533,8 @@
         this.bubble.textContent = message;
         this.bubble.style.display = 'block';
         
-        // Calculate display time based on message length (minimum 2 seconds, longer for longer messages)
-        const displayTime = Math.max(2000, message.length * 60);
+        // Calculate display time based on message length (more natural reading speed)
+        const displayTime = Math.max(1500, message.length * 40); // Faster base time, quicker per-character reading
         
         setTimeout(() => {
           this.bubble.style.display = 'none';

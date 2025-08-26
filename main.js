@@ -16,13 +16,13 @@ function createWindow() {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
   
   mainWindow = new BrowserWindow({
-    width: 200,
-    height: 280,
+    width: 280, // Increased to match new container size
+    height: 280, // Increased to match new container size
     transparent: true,
     frame: false,
     alwaysOnTop: true,
-    x: screenWidth - 220, // Bottom right corner
-    y: screenHeight - 300,
+    x: screenWidth - 300, // Adjusted for new size
+    y: screenHeight - 320,
     resizable: false,
     webPreferences: {
       nodeIntegration: false,
